@@ -5,7 +5,8 @@ public final static int NUM_ROWS = 20;
 public final static int NUM_COLS = 20;
 private MSButton[][] buttons; //2d array of minesweeper buttons
 private ArrayList <MSButton> bombs = new ArrayList <MSButton>(); //ArrayList of just the minesweeper buttons that are mined
-
+private boolean win = false;
+private boolean lose = false;
 void setup ()
 {
     size(400, 400);
@@ -15,7 +16,7 @@ void setup ()
     Interactive.make( this );
     
     //your code to initialize buttons goes here
-    buttons = new MSButton [20][20];
+    buttons = new MSButton [NUM_ROWS][NUM_COLS];
     for (int r = 0; r < NUM_ROWS; r++)
       for (int c = 0; c < NUM_COLS; c++)
         buttons[r][c]= new MSButton (r,c);
@@ -26,8 +27,8 @@ public void setBombs()
 {   int num = 0;
     while (num < 30) 
     {
-      int r = (int)(Math.random() * 20);
-      int c = (int)(Math.random() * 20);
+      int r = (int)(Math.random() * NUM_ROWS);
+      int c = (int)(Math.random() * NUM_ROWS);
       if (!bombs.contains(buttons[r][c]))
       {
         bombs.add(buttons[r][c]);
@@ -38,22 +39,40 @@ public void setBombs()
 
 public void draw ()
 {
-    background( 0 );
+    background(225,220,220);
     if(isWon())
         displayWinningMessage();
 }
 public boolean isWon()
-{
-    //your code here
+{  
+   int a = 0;
+   for (int row=0; row<NUM_ROWS; row++)
+    {
+      for (int col=0; col<NUM_COLS; col++)
+      {
+        if (buttons[row][col].isClicked() == false)
+            a++;
+      }
+    }
+    if (a ==30)
+    {
+      return true;
+    }
     return false;
 }
 public void displayLosingMessage()
 {
-    //your code here
+  String losingMessage = "YOU LOST";
+  for (int c = 1; c<19; c++)
+    buttons[9][c].setLabel(losingMessage.substring(c-1,c));
+  win = true;
 }
 public void displayWinningMessage()
 {
-    //your code here
+   String winningMessage = "YOU WON";
+   for (int c=1; c<19; c++)
+     buttons[9][c].setLabel(winningMessage.substring(c-1,c));
+   lose = true;
 }
 
 public class MSButton
@@ -88,15 +107,13 @@ public class MSButton
     public void mousePressed () 
     {
         clicked = true;
-        if (mouseButton==RIGHT)
-        {
-          if (marked == false)
+        if (keyPressed == true && marked == false)
               clicked = false;
-          else if (bombs.contains(this))
+        else if (bombs.contains(this))
               displayLosingMessage();
-          else if (countBombs(r,c) >0)
+        else if (countBombs(r,c) >0)
               setLabel("" + countBombs(r,c) + "");
-          else
+        else
           {
             if(isValid(r+1, c+1) == true && buttons[r+1][c+1].isClicked() == false)
                 buttons[r+1][c+1].mousePressed();
@@ -117,7 +134,7 @@ public class MSButton
           }
             
         }
-    }
+    
 
     public void draw () 
     {    
@@ -141,8 +158,8 @@ public class MSButton
     public boolean isValid(int r, int c)
     {
       if (r >=0 && r <20 && c >=0 && c <20)
-      return true;
-        return false;
+          return true;
+      return false;
     }
     public int countBombs(int row, int col)
     {
@@ -159,9 +176,9 @@ public class MSButton
           numBombs++;
         if (isValid(row-1,col-1) == true && bombs.contains(buttons[r-1][c-1]))
           numBombs++;
-        if (isValid(row+1,col-1) == true && bombs.contains(buttons[r-1][c-1]))
+        if (isValid(row+1,col-1) == true && bombs.contains(buttons[r+1][c-1]))
           numBombs++;
-        if (isValid(row-1,col+1) == true && bombs.contains(buttons[r-1][c-1]))
+        if (isValid(row-1,col+1) == true && bombs.contains(buttons[r-1][c+1]))
           numBombs++;
         return numBombs;
     }
